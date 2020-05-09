@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<!-- 网页使用的语言 -->
+<html lang="zh-CN">
+<head>
+    <!-- 指定字符集 -->
+    <meta charset="utf-8">
+    <!-- 使用Edge最新的浏览器的渲染方式 -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!-- viewport视口：网页可以根据设置的宽度自动进行适配，在浏览器的内部虚拟一个容器，容器的宽度与设备的宽度相同。
+    width: 默认宽度与设备的宽度相同
+    initial-scale: 初始的缩放比，为1:1 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <title>电话簿列表</title>
+
+    <!-- 1. 导入CSS的全局样式 -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <!-- 2. jQuery导入，建议使用1.9以上的版本 -->
+    <script src="jquery/jquery-3.3.1.min.js"></script>
+    <!-- 3. 导入bootstrap的js文件 -->
+    <script src="js/bootstrap.min.js"></script>
+    <style type="text/css">
+        td, th {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h3 style="text-align: center">联系人信息列表</h3>
+    <div class="row">
+        <div class="col-lg-6 col-lg-offset-3">
+            <div class="input-group">
+
+                <input id="input" type="text" class="form-control" placeholder="Search for...">
+
+                <span class="input-group-btn">
+        <button id="submit" class="btn btn-default" type="button">Go!</button>
+      </span>
+            </div><!-- /input-group -->
+        </div><!-- /.col-lg-6 -->
+
+    </div><!-- /.row -->
+    <p></p>
+    <table border="1" class="table table-bordered table-hover">
+        <tr class="success">
+            <th>编号</th>
+            <th>电话本名称</th>
+            <th>年龄</th>
+            <th>电话号</th>
+            <th>邮箱</th>
+            <th>备注</th>
+            <th>操作</th>
+        </tr>
+        <tbody id="show">
+
+        </tbody>
+
+
+        <tr id="insertUser">
+
+        </tr>
+
+
+    </table>
+</div>
+
+<script>
+
+    //根据 参数名称 获取参数
+    function getRequestByName() {
+        var url = location.search; //获取url中"?"符后的字串
+        var theRequest = new Object();
+        if (url.indexOf("?") != -1) {
+            var str = url.substr(1);
+            strs = str.split("&");
+            for (var i = 0; i < strs.length; i++) {
+                theRequest[strs[i].split("=")[0]] = unescape(strs[i].split("=")[1]);
+            }
+        }
+        return theRequest;
+    }
+
+
+    $(document).ready(function () {
+        var requestNid = getRequestByName()['nid'];
+        var requestUid = getRequestByName()['uid'];
+
+        //如果single传入 uid 则为删除功能
+        if (requestUid != null) {
+            $.post("/user/delete", {id: requestUid,nid:requestNid}, function (b) {
+                if (b === true) {
+                    window.location.href = "/single.html?nid=" + requestNid;
+                }
+            })
+        }
+
+        // 修改添加联系人 副代页面id
+        var insertUserLine = '\n' +
+            '                <td colspan="8" align="center"><a class="btn btn-primary" href="insertUser.html?id=' + requestNid + '">添加联系人</a></td>\n' +
+            '           ';
+        document.getElementById("insertUser").innerHTML = insertUserLine;
+
+        var line = '';
+        $.get("/user/list/" + requestNid, function (users) {
+
+            for (var i = 0; i < users.length; i++) {
+                line += ' <tr>\n' +
+                    '            <td>' + users[i].id + '</td>\n' +
+                    '            <td>' + users[i].name + '</td>\n' +
+                    '            <td>' + users[i].mobilePhone + '</td>\n' +
+                    '            <td>' + users[i].email + '</td>\n' +
+                    '            <td>' + users[i].telephone + '</td>\n' +
+                    '            <td>' + users[i].remarks + '</td>\n' +
+                    '        ' +
+                    '            <td><a class="btn btn-default btn-sm" href="updateUser.html?uid=' + users[i].id + '&nid=' + requestNid + '">修改</a>&nbsp;<a class="btn btn-default btn-sm" href="single.html?uid=' + users[i].id + '&nid=' + requestNid + '">删除</a></td>\n' +
+                    '        </tr>'
+            }
+            document.getElementById("show").innerHTML = line;
+        })
+
+
+        var button = document.getElementById("submit");
+
+        // 按钮点击事件
+        button.onclick = function () {
+            // 获取input标签内值
+            var input = document.getElementById("input")
+            var line = '';
+            $.get("/user/fuzzy?name=" + input.value, function (users) {
+
+                for (var i = 0; i < users.length; i++) {
+                    line += ' <tr>\n' +
+                        '            <td>' + users[i].id + '</td>\n' +
+                        '            <td>' + users[i].name + '</td>\n' +
+                        '            <td>' + users[i].mobilePhone + '</td>\n' +
+                        '            <td>' + users[i].email + '</td>\n' +
+                        '            <td>' + users[i].telephone + '</td>\n' +
+                        '            <td>' + users[i].remarks + '</td>\n' +
+                        '        ' +
+                        '            <td><a class="btn btn-default btn-sm" href="updateUser.html?uid=' + users[i].id + '&nid=' + requestNid + '">修改</a>&nbsp;<a class="btn btn-default btn-sm"href="single.html?uid=' + users[i].id + '&nid=' + requestNid + '">删除</a></td>\n' +
+                        '        </tr>'
+                }
+                document.getElementById("show").innerHTML = line;
+            })
+        }
+    })
+</script>
+</body>
+</html>

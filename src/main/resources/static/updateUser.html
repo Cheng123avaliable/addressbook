@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<!-- 网页使用的语言 -->
+<html lang="zh-CN">
+<head>
+    <base href="<%=basePath%>"/>
+    <!-- 指定字符集 -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>修改用户</title>
+
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <script src="jquery/jquery-3.3.1.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+
+</head>
+<body>
+<div class="container" style="width: 400px;">
+    <h3 style="text-align: center;">修改联系人</h3>
+
+    <div class="form-group">
+        <label for="name">姓名：</label>
+        <input type="text" class="form-control" id="name" name="name" placeholder="请输入姓名"/>
+    </div>
+
+
+    <div class="form-group">
+        <label for="mobilephone">手机：</label>
+        <input type="text" class="form-control" id="mobilephone" name="mobilephone" placeholder="请输入手机号"/>
+    </div>
+
+
+    <div class="form-group">
+        <label>Email：</label>
+        <input type="text" class="form-control" id="email" name="email" placeholder="请输入邮箱地址"/>
+    </div>
+
+    <div class="form-group">
+        <label>电话：</label>
+        <input type="text" class="form-control" id="telephone" name="telephone" placeholder="请输入电话号码"/>
+    </div>
+
+    <div class="form-group">
+        <label>备注：</label>
+        <input type="text" class="form-control" id="remarks" name="remarks" placeholder="请输入备注"/>
+    </div>
+
+    <div class="form-group" style="text-align: center">
+        <input class="btn btn-primary" id="submit" type="submit" value="提交"/>
+
+    </div>
+</div>
+<script>
+
+    //根据 参数名称 获取参数
+    function getRequestByName() {
+        var url = location.search; //获取url中"?"符后的字串
+        var theRequest = new Object();
+        if (url.indexOf("?") != -1) {
+            var str = url.substr(1);
+            strs = str.split("&");
+            for (var i = 0; i < strs.length; i++) {
+                theRequest[strs[i].split("=")[0]] = unescape(strs[i].split("=")[1]);
+            }
+        }
+        return theRequest;
+    }
+
+
+    $(document).ready(function () {
+
+
+        // 回显数据
+       $.get("/user/one?id="+getRequestByName()["uid"], function (user) {
+            document.getElementById("name").value = user.name;
+           document.getElementById("mobilephone").value = user.mobilePhone;
+           document.getElementById("email").value = user.email
+          document.getElementById("telephone").value = user.telephone;
+           document.getElementById("remarks").value = user.remarks;
+        })
+
+
+        let button = document.getElementById("submit");
+        button.onclick = function () {
+            // 1. 如果路径有参数 那么就是更新 否则是 新建
+            let request =  getRequestByName()["uid"];
+            let name_value = document.getElementById("name").value;
+            let mobilephone_value = document.getElementById("mobilephone").value;
+            let email_value = document.getElementById("email").value;
+            let telephone_value = document.getElementById("telephone").value;
+            let remarks_value = document.getElementById("remarks").value;
+            var nidValue = getRequestByName()["nid"];
+            if (request != null) {
+                $.post("/user/update", {
+                    id: request,
+                    name: name_value,
+                    mobilePhone: mobilephone_value,
+                    email: email_value,
+                    telephone: telephone_value,
+                    remarks: remarks_value,
+                }, function (b) {
+                    if (b === true) {
+                        window.location.href = "/single.html?nid=" + nidValue;
+                    }
+                })
+            }
+        }
+    })
+
+
+</script>
+</body>
+</html>

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<!-- 网页使用的语言 -->
+<html lang="zh-CN">
+<head>
+    <base href="<%=basePath%>"/>
+    <!-- 指定字符集 -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>添加用户</title>
+
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <script src="jquery/jquery-3.3.1.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+
+</head>
+<body>
+<div class="container" style="width: 400px;">
+    <h3 style="text-align: center;">添加联系人</h3>
+
+    <div class="form-group">
+        <label for="name">姓名：</label>
+        <input type="text" class="form-control" id="name" name="name" placeholder="请输入姓名"/>
+    </div>
+
+
+    <div class="form-group">
+        <label for="mobilephone">手机：</label>
+        <input type="text" class="form-control" id="mobilephone" name="mobilephone" placeholder="请输入手机号"/>
+    </div>
+
+
+    <div class="form-group">
+        <label>Email：</label>
+        <input type="text" class="form-control" id="email" name="email" placeholder="请输入邮箱地址"/>
+    </div>
+
+    <div class="form-group">
+        <label>电话：</label>
+        <input type="text" class="form-control" id="telephone" name="telephone" placeholder="请输入电话号码"/>
+    </div>
+
+    <div class="form-group">
+        <label>备注：</label>
+        <input type="text" class="form-control" id="remarks" name="remarks" placeholder="请输入备注"/>
+    </div>
+
+    <div class="form-group" style="text-align: center">
+        <input class="btn btn-primary" id="submit" type="submit" value="提交"/>
+
+    </div>
+</div>
+<script>
+    function getRequest() {
+        var url = location.search; //获取url中"?"符后的字串
+        if (url.indexOf("?") !== -1) {    //判断是否有参数
+            var str = url.substr(1); //从第一个字符开始 因为第0个是?号 获取所有除问号的所有符串
+            strs = str.split("=");   //用等号进行分隔 （因为知道只有一个参数 所以直接用等号进分隔 如果有多个参数 要用&号分隔 再用等号进行分隔）
+            //直接弹出第一个参数 （如果有多个参数 还要进行循环的）
+            return strs[1];
+        }
+    }
+
+
+    $(document).ready(function () {
+        let button = document.getElementById("submit");
+        button.onclick = function () {
+            // 1. 如果路径有参数 那么就是更新 否则是 新建
+            let request = getRequest();
+            let name_value = document.getElementById("name").value;
+            let mobilephone_value = document.getElementById("mobilephone").value;
+            let email_value = document.getElementById("email").value;
+            let telephone_value = document.getElementById("telephone").value;
+            let remarks_value = document.getElementById("remarks").value;
+            if (request != null) {
+                $.post("/user/insert", {
+                    name: name_value,
+                    mobilePhone:mobilephone_value,
+                    email:email_value,
+                    telephone:telephone_value,
+                    remarks:remarks_value,
+                     nid : request}, function (b) {
+                    if (b === true) {
+                        window.location.href = "/single.html?id="+request;
+                    }
+                })
+            }
+        }
+    })
+
+
+
+</script>
+</body>
+</html>
